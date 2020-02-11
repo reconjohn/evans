@@ -285,7 +285,7 @@ ggarrange(sil1,sil2,ncol = 1)
 #library(geojsonio)
 library(rgdal)
 
-fromGit="https://github.com/eScienceUW-WinterSchool-2020/RSession/raw/master/map/world_map.json" # link desde github
+fromGit="https://github.com/reconjohn/evans/raw/master/world_map.json" # link desde github
 
 
 mapWorld <- rgdal::readOGR(fromGit,stringsAsFactors = FALSE)
@@ -307,7 +307,8 @@ mapWorldAll=merge(mapWorld, #map first
                    by.y='Country', # common column
                    all.x=F) # reduced map.
 
-
+# names(fromPy)
+# names(mapWorld)
 
 ## ---- eval=TRUE----------------------------------------------------------
 # what:
@@ -343,6 +344,7 @@ legend('left', legend = c("TOP","GOOD","BAD","POOR"),
 #row.names(fromPy)=fromPy$Country
 hypo1=formula(co2_in_MT~ dem_FA + Humandevelopmentindex + Continent)
 regre1=glm(hypo1,data = fromPy,family = 'gaussian')
+# difference between glm and ols? glm doesn't give us R square.
 
 
 ## ------------------------------------------------------------------------

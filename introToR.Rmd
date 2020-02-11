@@ -294,7 +294,7 @@ dfClus=dfClus[complete.cases(dfClus),]
 ```{r}
 library(cluster)
 dfClus_D=cluster::daisy(x=dfClus,metric="gower") 
-# default metric Euclidean, gower deals with ordinal variance. 
+# default metric is Euclidean, gower deals with ordinal variance. 
 ```
 
 
@@ -338,7 +338,7 @@ pamEval=as.data.frame.array(silhouette(res.pam))
 pamEval$country=row.names(pamEval)
 row.names(pamEval)=NULL
 aggregate(data=pamEval,sil_width~cluster,FUN=mean)
-# sil_width?
+# sil_width? how good the observation is included well in the cluster(negative is saying those in that cluster should not be in that cluster).
 
 ```
 
@@ -413,6 +413,7 @@ library(rgdal)
 
 fromGit="https://github.com/eScienceUW-WinterSchool-2020/RSession/raw/master/map/world_map.json" # link desde github
 
+# https://github.com/reconjohn/evans/raw/master/world_map.json
 
 mapWorld <- rgdal::readOGR(fromGit,stringsAsFactors = FALSE)
 ```

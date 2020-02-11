@@ -1,0 +1,241 @@
+<br> 
+<center><img src="http://i.imgur.com/sSaOozN.png" width="500"></center>
+
+
+## Course:  COMPUTATIONAL THINKING FOR GOVERNANCE ANALYTICS
+
+_____
+<a id='part1'></a>
+
+# Session 5: Intro to R (I)
+
+Collect the data we prepared in Python:
+
+```{r collecting}
+link='https://github.com/reconjohn/evans/raw/master/hdidemocia.RDS'
+# a RDS file from the web needs:
+myFile=url(link)
+
+# reading in data:
+fromPy=readRDS(file = myFile)
+
+# reset indexes to R format:
+row.names(fromPy)=NULL
+```
+
+
+
+# <font color="red">Data frames in R</font>
+
+Data frames are a native structure for R. You can now the data types you have using **str()**:
+
+```{r using_str}
+str(fromPy)#,width = 70,strict.width='cut')
+```
+
+If you need to know only the variable names, you just need **names()**
+```{r using_names}
+names(fromPy)
+```
+
+You can visit any value knowing the indexes:
+* a cell:
+```{r check_cell}
+fromPy[2,3]
+```
+* a row:
+```{r check_row}
+fromPy[2,]
+```
+
+* a column:
+```{r check_column}
+fromPy[,3]
+```
+
+* a row and some columns using **c()** to prepare a vector of indexes:
+```{r check_rowcolPOS}
+# by position:
+fromPy[2,c(1,5:7)]
+```
+
+```{r check_rowcolVAL}
+# by value:
+fromPy[2,c('Country','Continent', 'Score')]
+```
+
+You can create and replace any value you recover (cel, row, column) with **=** or **<-**:
+
+Example 1:
+```{r createCol}
+# create new column:
+fromPy$ZERO=0
+# then:
+head(fromPy)
+```
+
+Example 2:
+```{r replaceCol}
+# replace column values:
+fromPy$ZERO=1
+# then:
+head(fromPy)
+```
+
+Example 3:
+```{r deleteCol}
+# DELETE column:
+fromPy$ZERO=NULL
+# then:
+names(fromPy)
+```
+
+## Querying data frames:
+
+* What is the country with highest HDI?
+```{r query1}
+# you could get more than one
+condition1=fromPy$Humandevelopmentindex==max(fromPy$Humandevelopmentindex)
+fromPy[condition1,]
+```
+
+```{r query2}
+#or
+fromPy[condition1,'Country']
+```
+
+You also have:
+```{r query3}
+# in multiple max, you get only the first one.
+fromPy[which.max(fromPy$Humandevelopmentindex),'Country']
+```
+
+* What is the country with highest HDI in America?
+
+```{r query4}
+# from AMERICA:
+AMERICA=c('South America','North America')
+condition2=fromPy$Continent %in% AMERICA
+subAmerica=fromPy[condition2,]
+
+subAmerica[condition1,'Country']
+```
+
+A version using **pipes** and **dplyr**:
+
+```{r query5_pipes}
+library(magrittr)
+library(dplyr)
+
+fromPy%>%
+    filter(Continent %in% AMERICA)%>%
+    filter(Humandevelopmentindex==max(Humandevelopmentindex))%>%
+    select(Country)
+```
+
+* What is the country with highest HDI not from America?
+
+```{r query6}
+subNotAmerica=fromPy[!condition2,]
+
+subNotAmerica[condition1,'Country']
+```
+
+A version using **pipes** and **dplyr**:
+
+```{r query7_pipes}
+fromPy%>%
+    filter(!Continent %in% AMERICA)%>%
+    filter(Humandevelopmentindex==max(Humandevelopmentindex))%>%
+    select(Country)
+```
+
+
+## Aggregating/summarizing data frames:
+
+* The average HDI per continent:
+
+```{r aggre1}
+# the result is a data frame:
+aggregate(data=fromPy,Humandevelopmentindex ~ Continent,FUN=mean)
+```
+
+A version using **pipes** and **dplyr**:
+
+```{r aggre2_pipes}
+fromPy%>%
+    group_by(Continent) %>% 
+    summarise(mean(Humandevelopmentindex))
+```
+
+You can make more complex aggregations that way:
+```{r aggre3_pipes}
+fromPy%>%
+    group_by(Continent) %>% 
+    summarise(meanHDI=mean(Humandevelopmentindex),
+              medianHDI=median(Humandevelopmentindex))
+```
+
+* The median of the democracy components:
+
+```{r aggre4}
+# several columns in cbind...
+aggregate(data=fromPy,
+          cbind(Electoralprocessandpluralism,Functioningofgovernment,
+                Politicalparticipation,Politicalculture,
+                Civilliberties)~Continent,
+          FUN=median)
+
+```
+
+If you know the indexes of the columns:
+
+```{r aggre5}
+# In ".~ Continent" the dot represents all the other variables
+aggregate(data=fromPy[,c(8:12,14)],.~Continent,FUN=median)
+```
+
+A version using **pipes** and **dplyr**:
+
+```{r aggre6_pipes}
+fromPy[,c(8:12,14)]%>%
+    group_by(Continent) %>% 
+    summarise_all(list(median)) 
+```
+
+A more complex version:
+
+```{r aggre7_pipes}
+fromPy[,c(8:12,14)]%>%
+    group_by(Continent) %>% 
+    summarise_all(list(MIN=min,MAX=max)) 
+```
+
+## Creating new data:
+
+One column:
+
+```{r createColifelse}
+# HDIdico is the new variable:
+# 1 if the value is < median, ) otherwise.
+fromPy$HDIdico=ifelse(fromPy$Humandevelopmentindex>
+                          median(fromPy$Humandevelopmentindex),
+                      1,0)
+# then:
+head(fromPy)
+```
+
+A version using **pipes** and **dplyr**:
+
+```{r createColifelse_pipes}
+# you will add a new column at the end (this is a preview):
+fromPy%>%
+    mutate(HDIdico =ifelse(Humandevelopmentindex >
+                           median(Humandevelopmentindex),
+                           1, 0))%>%head()
+```
+
+
+
+
+
