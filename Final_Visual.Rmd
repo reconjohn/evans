@@ -1,8 +1,10 @@
 ---
 title: "Final Report (PUBPOL 543)"
-author: "Charles Quackenbush, Yohan Min"
+author: "Yohan Min, Charles Quackenbush"
 date: "March 17, 2020"
-output: html_document
+output: 
+    html_document:
+        keep_md: yes
 ---
 
 # Education and Renewable Energy
@@ -303,7 +305,7 @@ final1 %>%
 Finally, to find the relationship between Education Index and Solar generation, two regression models were performed: Gaussian and binomial regressions with a control variable, Continent. 
 
 > Gaussian Regression:
-> ** Solar ~ Total RE + Education Index + Continent ** 
+> **Solar ~ Total RE + Education Index + Continent** 
 
 ```{r}
 
@@ -329,7 +331,7 @@ plot_models(regre1,vline.color = "grey")+
 ```
 
 > Logistic Regression:
-> Solar (0,1) ~ Total RE + Education Index + Continent
+> **Solar (0,1) ~ Total RE + Education Index + Continent**
 
 
 ```{r}
